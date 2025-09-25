@@ -1,0 +1,320 @@
+{
+  "name": "My workflow 12",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=ROLE DEFINITION\n\nYou are an n8n Workflow Assistant Agent.\n\nYour job is to help the user define a complete and detailed workflow idea for n8n, and then generate a ready-to-import n8n workflow JSON.\n\n🔁 INTERACTION FLOW\n\nUser provides a short workflow idea\n(Input comes from: {{ $json.blocks[0].elements[0].elements[1].text }})\n\nYou ask adaptive, one-at-a-time questions to clarify:\n\nNodes to use\n\nExact configurations\n\nAPIs, credentials, or external services needed\n\nAfter collecting 5 to 6 well-answered questions, generate:\n\nA fully configured, valid n8n workflow JSON\n\nNo missing fields, no empty configurations\n\n🧠 MEMORY RULES\n\nRemember all previous questions and answers in simple memory during the session.\n\nUse that memory to avoid repeating or skipping questions.\n\nEnsure you cover all key parts of the workflow based on the idea.\n\n📌 WHAT TO ALWAYS CLARIFY\nTopic\tRequired Details\n✅ Trigger\tHow the workflow starts (e.g. Schedule, Webhook, Manual)\n✅ Data Source\tWhere the input data comes from (e.g. API, Google Sheet)\n✅ Processing\tAny filtering, transformation, or logic\n✅ Output\tWhere the result goes (e.g. Slack, email, database)\n✅ Error Handling\tWhat to do on failure (retry, alert, stop)\n✅ Additional Logic\tAny conditions, loops, waits, etc.\n🧠 ADAPTIVE QUESTIONS (Examples)\n\nIf user mentions Slack:\n→ \"Which Slack channel should messages go to?\"\n→ \"Should it send, read, or both?\"\n\nIf user mentions an API:\n→ \"What is the API endpoint?\"\n→ \"What authentication does it require?\"\n→ \"What method should be used (GET, POST, etc.)?\"\n\nIf user mentions Google Sheets:\n→ \"Should it trigger on new rows or updated ones?\"\n→ \"Do you want to include all columns or only selected ones?\"\n\nIf no error flow is mentioned:\n→ \"What should happen if something fails (retry, alert, stop)?\"\n\n⚠️ STRICT RULES FOR QUESTIONING\n\nAsk ONE question at a time\n\nKeep the question short, specific, and relevant\n\nDo not give any explanations or extra text\n\nDo not repeat previous questions\n\nStop questioning only after 5–6 distinct answers are collected\n\n✅ FINAL OUTPUT (AFTER QUESTIONS)\n\nAfter collecting all necessary answers:\n\nafter asking 6 quetions just generate the workflow json \n\nGenerate a valid n8n workflow JSON with:\n\nA descriptive workflow name\n\nAll necessary nodes, correctly configured\n\nProper node connections\n\nCredentials or API config if applicable\n\nOutput only the JSON:\n\nNo markdown,\n\nNo explanation,\n\nNo text before or after\n\n❌ NEVER DO THIS\n\n❌ Never output an empty or partial workflow\n\n❌ Never skip questions\n\n❌ Never explain what you’re doing\n\n❌ Never ask vague, open-ended questions\n\n❌ Never proceed to output before 5–6 questions are answered",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "64a547b2-1e38-4668-9641-4324d3ddfe11",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        464,
+        304
+      ],
+      "id": "8ae6b97e-b104-45d4-8a05-e1483720d653",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "q8NpuAeoqyn8z8Pd",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "3",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        608,
+        288
+      ],
+      "id": "370abfa4-1422-4a16-89e3-e05de411eb40",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        288
+      ],
+      "id": "f2bb3a8d-37a7-402c-9cd2-38efa3f91409",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "file_share",
+          "any_event"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C09G6DX9XJB",
+          "mode": "list",
+          "cachedResultName": "agentn8n"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e1673fcf-a3b0-480f-955f-9d535b28458d",
+      "name": "Slack Trigger",
+      "webhookId": "cfb5a7f3-c32c-48fe-85cf-31d8c843ab4a",
+      "credentials": {
+        "slackApi": {
+          "id": "LYYR4nySjc9aqlhX",
+          "name": "Slack account 8"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09G6DX9XJB",
+          "mode": "list",
+          "cachedResultName": "agentn8n"
+        },
+        "message": "={{ $json.output }}",
+        "responseType": "customForm",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "={{ $json.output }}",
+              "placeholder": "please replay to clarify the workflow"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1200,
+        0
+      ],
+      "id": "96a1b6c5-6a57-44fc-963b-6c37de998f28",
+      "name": "Send message and wait for response",
+      "webhookId": "954995ce-2e58-437f-8cbd-242f655066fe",
+      "credentials": {
+        "slackApi": {
+          "id": "LYYR4nySjc9aqlhX",
+          "name": "Slack account 8"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Send_a_message_in_Slack",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09G6DX9XJB",
+          "mode": "list",
+          "cachedResultName": "agentn8n"
+        },
+        "text": "={{ $fromAI('Message_Text', ``, 'string') }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slackTool",
+      "typeVersion": 2.3,
+      "position": [
+        928,
+        320
+      ],
+      "id": "11a9b8ec-201f-4dc7-a419-cc9948a4281a",
+      "name": "Send a message in Slack",
+      "webhookId": "62369886-a445-4868-b92d-30b2e26a0488",
+      "credentials": {
+        "slackApi": {
+          "id": "LYYR4nySjc9aqlhX",
+          "name": "Slack account 8"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Respond only with actions. Do not explain, confirm, or describe what you are doing.\n\nIf the input is a valid JSON object, send it to the connected Slack tool using Send_a_message_in_Slack.\nIf the input is not valid JSON, output the original input exactly as received, with no added text, explanation, formatting, or prefixes. Do not generate or return anything else under any condition, just output {{ $json.output }}\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        0
+      ],
+      "id": "3c6b1aa7-8070-4033-99b7-5cb7af3e1504",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "sendTo": "deepesh.manju2003@gmail.com ",
+        "subject": "workflow",
+        "emailType": "text",
+        "message": "ss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1088,
+        320
+      ],
+      "id": "6974f547-70b3-4e6f-9ae8-ccedadc10d37",
+      "name": "Send a message in Gmail",
+      "webhookId": "4cb62dba-de26-4455-a127-08e7bf664234",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xktP1cZdBclUGLAK",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Slack": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "04cebd9c-dc48-4405-a73d-303d743e5b6c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ebef53eef43653c51570f7e5b4503740fa132d1967500b514a089fff7ba36875"
+  },
+  "id": "J7De9NqWlq97PNL7",
+  "tags": []
+}
