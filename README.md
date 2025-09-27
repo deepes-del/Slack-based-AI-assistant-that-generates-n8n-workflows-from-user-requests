@@ -6,6 +6,10 @@ SlackFlow – AI-Powered n8n Workflow Builder
 SlackFlow is a Slack-based AI assistant that helps users create fully functional n8n workflows simply by describing what they want to build.
 Users can interact with the bot via Slack messages or voice notes, and the assistant will guide them through a short clarification process. Once everything is clear, it generates step-by-step instructions to build the workflow in n8n, including which nodes to use and how to configure each one.
 
+
+try with your own api's and credentials.
+
+
 Features
 
  Natural language interaction – Just describe the automation you need.
